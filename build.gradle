@@ -1,0 +1,41 @@
+plugins {
+	id 'java-library'
+}
+
+group = project.group
+version = project.version
+description = project.description 
+
+ext {
+	jdk_version = JavaVersion.VERSION_1_8;
+} 
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	provided {
+		compileOnly.extendsFrom provided
+		runtimeOnly.extendsFrom provided
+	}
+}
+
+dependencies {	
+	provided('net.sf.robocode:robocode.api:+')
+	provided('net.sf.robocode:robocode.battle:+')
+	provided('net.sf.robocode:robocode.core:+')
+	provided('net.sf.robocode:robocode.ui:+')
+}
+
+tasks.withType(JavaCompile) {
+	// for some reason this breaks code using "sun.misc.*"
+	// options.release = Integer.parseInt(jdk_version.getMajorVersion())
+	options.encoding = 'UTF-8'
+}
+
+java {
+	sourceCompatibility = jdk_version
+	targetCompatibility = jdk_version
+}
+
