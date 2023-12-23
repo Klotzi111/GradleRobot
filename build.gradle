@@ -1,13 +1,25 @@
 plugins {
 	id 'java-library'
+	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 group = project.group
 version = project.version
-description = project.description 
+description = project.description
 
 ext {
 	jdk_version = JavaVersion.VERSION_1_8;
+
+	// these values can be set in the gradle.properties file
+	// here set fallback values are set
+	// these values will be used to populate the robot's .properties fiel
+	robotNamespace = project.findProperty("robotNamespace") ?: project.group
+	robotName = project.findProperty("robotName") ?: project.name
+	robotVersion = project.findProperty("robotVersion") ?: project.version
+	robotDescription = project.findProperty("robotDescription") ?: project.description
+	robotAuthor = project.findProperty("robotAuthor") ?: "UnkownRobocodeRobotCreator"
+
+	robotFullClassName = "${robotNamespace}.${robotName}"
 } 
 
 repositories {
@@ -26,6 +38,13 @@ dependencies {
 	provided('net.sf.robocode:robocode.battle:+')
 	provided('net.sf.robocode:robocode.core:+')
 	provided('net.sf.robocode:robocode.ui:+')
+	
+	// Add other libraries here
+	// they will be bundled into the jar file and thus can be used by your robot
+	
+	// Example library: joml (Adds vectors and other math stuff)
+	// uncomment the line below and it will be bundled
+	// shadow(implementation('org.joml:joml:1.10.5'))
 }
 
 tasks.withType(JavaCompile) {
@@ -39,3 +58,33 @@ java {
 	targetCompatibility = jdk_version
 }
 
+jar {
+	manifest {
+		attributes(
+			'robots': robotFullClassName
+		)
+	}
+}
+
+shadowJar {
+	configurations = [project.configurations.shadow]
+	// remove the -all suffix
+	archiveClassifier.set('')
+	
+	// this will copy the robot .properties file to the correct dest/name and does value injection
+	eachFile {
+		fileCopyDetails -> {
+			if (fileCopyDetails.path.equals("Robot.properties")) {
+				def engine = new groovy.text.SimpleTemplateEngine()
+				def content = fileCopyDetails.file.text;
+				def template = engine.createTemplate(content).make(project.properties)
+				def newContent = template.toString()
+				fileCopyDetails.file.text = newContent
+				fileCopyDetails.path = "${robotNamespace}/${robotName}.properties"
+			}
+		}
+	}
+
+	// The line below is an example how you can exclude some files and directories from being bundled into the jar file
+	// exclude 'notBundledPackage/**'
+}
