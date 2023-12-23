@@ -10,11 +10,11 @@ This repo comes with an example robot implementation class so you can get starte
 
 ### Setup
 - Clone this repository
-- [Change Robot/Project Name](#change-robot-project-name)
+- [Change Robot/Project Name](#change-robotproject-name)
 
 ### Change and Export
 - Change the robot code (Open this repo as a Gradle project in your IDE)
-- [Export your Robot as a jar file](export-a-jar-file-for-robocode) and import it in [RoboCode](https://github.com/robo-code/robocode)
+- [Export your Robot as a jar file](#export-a-jar-file-for-robocode) and import it in [RoboCode](https://github.com/robo-code/robocode)
 
 
 ## Change Robot/Project Name
